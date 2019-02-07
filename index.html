@@ -1,0 +1,171 @@
+<html>
+    <head>
+        <title>Check your UI skills.</title>
+        <style>
+            body {
+                padding: 40px;    
+            }
+            .question-container {
+                padding: 40px;
+            }
+        
+            .question-container li {
+                list-style-type: decimal;
+                padding: 20px 20px 20px 0;
+            }
+
+            .correct-answer {
+                color: green;
+            }
+
+            .wrong-answer {
+                color: red;
+            }
+
+            .disabled {
+                pointer-events: none;
+                opacity: .5;
+            }
+            .hide {
+                display: none;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>Test your UI skills by answering couple of questions..</h1>
+        <div>
+            <button id="start-btn" onclick="toggleQuestion('start')" style="float: right;">Start</button>
+            <button id="next-btn" onclick="toggleQuestion('next')" style="float: right;">Next ></button>
+            <button id="previous-btn" onclick="toggleQuestion('previous')" style="float: right;">< Previous</button>
+        </div>
+        <div class="question-container">
+            <h2 class="question-statement"></h2>
+            <div class="question-options">
+            </div>
+        </div>
+        <button id="validate-btn" onclick="validate(this)">Validate</button>
+
+        <script type="text/javascript">
+            
+            var quiz = {
+                questions: [{
+                    q: 'Which of following is not a valid data-type in JS?',
+                    options: [{
+                        o: 'Boolean',
+                        id: '1'
+                    },{
+                        o: 'Interger',
+                        id: '2'
+                    },{
+                        o: 'Number',
+                        id: '3'
+                    },{
+                        o: 'String',
+                        id: '4'
+                    }],
+                    answerId: '2'
+                },{
+                    q: 'Which of following is a truthy value in JS?',
+                    options: [{
+                        o: 'undefined',
+                        id: '1'
+                    },{
+                        o: 'NaN',
+                        id: '2'
+                    },{
+                        o: 'null',
+                        id: '3'
+                    },{
+                        o: '"0"',
+                        id: '4'
+                    }],
+                    answerId: '4'
+                }]
+            };
+
+            var startBtn = document.querySelector('#start-btn');
+            var nextBtn = document.querySelector('#next-btn');
+            var previousBtn = document.querySelector('#previous-btn');
+            var validateBtn = document.querySelector('#validate-btn');
+            var questionIndex = -1;            
+            var questionStatementContainer = document.querySelector('.question-container .question-statement');
+            var questionOptionContainer = document.querySelector('.question-container .question-options');
+
+            nextBtn.classList.add('hide');
+            previousBtn.classList.add('hide');
+            validateBtn.classList.add('hide');
+
+            function renderQuestion(index) {
+                var questionStatement = quiz.questions[index].q;
+                questionStatementContainer.innerHTML = questionStatement;
+
+                var questionOptionHTML = '';
+                quiz.questions[index].options.map((item) => {
+                    questionOptionHTML += `<li>
+                        <input type="radio" class="options" name="options" value=${item.id} />
+                        ${item.o}
+                    </li>`; 
+                });
+                questionOptionContainer.innerHTML = questionOptionHTML;
+                validateBtn.classList.remove('hide');
+            }
+
+            function toggleQuestion(type) {
+                previousBtn.disabled = false;
+                nextBtn.disabled = false;
+                validateBtn.disabled = false;
+                if (questionIndex === -1) {
+                    previousBtn.disabled = true;
+                } else if (questionIndex === quiz.questions.length - 2) {
+                    nextBtn.disabled = true;
+                }
+                if (type === 'start') {
+                    startBtn.classList.add('hide');
+                    previousBtn.classList.remove('hide');
+                    nextBtn.classList.remove('hide');
+                    renderQuestion(++questionIndex);
+                } else if (type === 'next') {
+                    renderQuestion(++questionIndex);
+                } else {
+                    renderQuestion(--questionIndex);
+                }
+            }
+
+            var correctAnswerTag = document.createElement('span');
+            correctAnswerTag.classList.add('correct-answer'); 
+            correctAnswerTag.innerHTML = 'Correct Answer!!';
+
+            var wrongAnswerTag = document.createElement('span');
+            wrongAnswerTag.classList.add('wrong-answer'); 
+            wrongAnswerTag.innerHTML = 'Wrong Answer!!';
+
+
+            function validate(target) {
+                target.classList.add('disabled');
+                var selectedItem = null;
+                document.querySelectorAll('.options').forEach((item) => {
+                    item.classList.add('disabled');
+                    if (item.checked) {
+                        selectedItem = item;
+                    }
+                });
+                var selectedAnswer = selectedItem.value;
+
+                var correctItem = null;
+                document.querySelectorAll('.options').forEach((item) => {
+                    if (item.value === quiz.questions[questionIndex].answerId) {
+                        correctItem = item;
+                    };
+                });
+                var correctAnswer = correctItem.value;
+                
+                correctItem.parentNode.append(correctAnswerTag);
+                if (selectedAnswer !== correctAnswer) {
+                    selectedItem.parentNode.append(wrongAnswerTag);
+                }
+            }
+
+        </script>
+    </body>
+</html>
